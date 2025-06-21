@@ -40,6 +40,11 @@
     public *;
 }
 
+# Keep internal config classes to avoid StringConcatFactory issues
+-keep class io.github.shinhyo.signinwithapple.AppleSignInConfig {
+    *;
+}
+
 # Keep ResultReceiver for callbacks
 -keep class * extends android.os.ResultReceiver {
     public *;
@@ -49,9 +54,28 @@
 -keep class kotlinx.coroutines.** { *; }
 -dontwarn kotlinx.coroutines.**
 
-# Keep kotlinx.serialization
+# Keep StringConcatFactory for data class toString methods
+-dontwarn java.lang.invoke.StringConcatFactory
+
+# --- kotlinx.serialization ---
 -keep class kotlinx.serialization.** { *; }
 -dontwarn kotlinx.serialization.**
+
+# --- kotlin-reflect ---
+-keep class kotlin.reflect.** { *; }
+-dontwarn kotlin.reflect.**
+
+# --- mockk (for test, just in case) ---
+-keep class io.mockk.** { *; }
+-dontwarn io.mockk.**
+
+# --- androidx ---
+-keep class androidx.** { *; }
+-dontwarn androidx.**
+
+# --- kotlin stdlib ---
+-keep class kotlin.** { *; }
+-dontwarn kotlin.**
 
 # Keep Flow related classes
 -keep class kotlinx.coroutines.flow.** { *; }
