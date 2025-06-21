@@ -23,6 +23,11 @@ import android.os.Looper
 import android.os.ResultReceiver
 import io.github.shinhyo.signinwithapple.model.AppleSignInResult
 import java.util.concurrent.CancellationException
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Apple Sign-In Service
@@ -151,5 +156,25 @@ object SignInWithApple {
         } catch (e: Exception) {
             callback(Result.failure(e))
         }
+    }
+}
+
+
+/**
+ * Extension function that enables Apple Sign-In to be used as a Flow.
+ */
+fun SignInWithApple.flow(context: Context, nonce: String): Flow<AppleSignInResult> = flow {
+    suspendCancellableCoroutine { cont ->
+        SignInWithApple.signIn(context, nonce) { result ->
+            result
+                .onSuccess { appleSignInResult ->
+                    cont.resume(appleSignInResult)
+                }
+                .onFailure { exception ->
+                    cont.resumeWithException(exception)
+                }
+        }
+    }.let { appleSignInResult ->
+        emit(appleSignInResult)
     }
 }
