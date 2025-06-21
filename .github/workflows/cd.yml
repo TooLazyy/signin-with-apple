@@ -38,13 +38,18 @@ jobs:
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Build library
-        run: ./gradlew :sdk-signin-apple:build --init-script gradle/init.gradle.kts --no-configuration-cache --no-daemon --stacktrace
-
-      - name: Build release artifacts
+      - name: Build release artifacts with ProGuard
         run: |
-          ./gradlew :sdk-signin-apple:assembleRelease --init-script gradle/init.gradle.kts --no-configuration-cache --no-daemon --stacktrace
+          echo "Building release AAR with ProGuard optimization..."
           ./gradlew :sdk-signin-apple:bundleReleaseAar --init-script gradle/init.gradle.kts --no-configuration-cache --no-daemon --stacktrace
+          
+          # Verify ProGuard was applied
+          if [ -f "sdk-signin-apple/build/outputs/mapping/release/mapping.txt" ]; then
+            echo "✅ ProGuard mapping file found - obfuscation applied successfully"
+            ls -la sdk-signin-apple/build/outputs/mapping/release/
+          else
+            echo "⚠️ ProGuard mapping file not found"
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
