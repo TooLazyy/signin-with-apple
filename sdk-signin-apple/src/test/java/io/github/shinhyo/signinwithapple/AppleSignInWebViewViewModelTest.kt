@@ -120,8 +120,7 @@ class AppleSignInWebViewViewModelTest {
         val params = viewModel.parseQueryParameters(queryString)
 
         // Then
-        assertEquals(2, params.size)
-        assertEquals("", params["key1"])
+        assertEquals(1, params.size) // empty parameters should be filtered out
         assertEquals("value2", params["key2"])
     }
 

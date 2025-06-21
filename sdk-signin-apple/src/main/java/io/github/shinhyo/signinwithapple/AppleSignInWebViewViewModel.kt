@@ -229,6 +229,7 @@ internal class AppleSignInWebViewViewModel() : ViewModel() {
      * Emits error event
      */
     internal fun emitError(message: String) {
+        _uiState.value = _uiState.value.copy(errorMessage = message)
         _events.value = AppleSignInEvent.Error(message)
     }
 
@@ -242,7 +243,9 @@ internal class AppleSignInWebViewViewModel() : ViewModel() {
             if (keyValue.size == 2) {
                 val key = keyValue[0]
                 val value = keyValue[1]
-                params[key] = value
+                if (key.isNotEmpty() && value.isNotEmpty()) {
+                    params[key] = value
+                }
             }
         }
         return params

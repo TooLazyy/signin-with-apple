@@ -60,8 +60,12 @@ object SignInWithApple {
      *
      * @param serviceId The Apple Service ID configured in Apple Developer Console
      * @param redirectUri The redirect URI registered with Apple
+     * @throws IllegalArgumentException if serviceId or redirectUri is empty
      */
     fun init(serviceId: String, redirectUri: String) {
+        require(serviceId.isNotEmpty()) { "Service ID cannot be empty" }
+        require(redirectUri.isNotEmpty()) { "Redirect URI cannot be empty" }
+
         this.serviceId = serviceId
         this.redirectUri = redirectUri
     }
@@ -69,8 +73,13 @@ object SignInWithApple {
     /**
      * Gets the redirect URI (for backward compatibility)
      */
-    internal fun getRedirectUri(): String =
-        redirectUri ?: throw IllegalStateException("SignInWithApple not initialized")
+    internal fun getRedirectUri(): String {
+        return if (redirectUri.isNullOrEmpty()) {
+            throw IllegalStateException("SignInWithApple not initialized")
+        } else {
+            redirectUri!!
+        }
+    }
 
     /**
      * Starts Apple Sign-In.
@@ -214,7 +223,7 @@ object SignInWithApple {
  * Extension function that enables Apple Sign-In to be used as a Flow.
  */
 fun SignInWithApple.flow(context: Context, nonce: String): Flow<AppleSignInResult> = flow {
-    suspendCancellableCoroutine { cont ->
+    val appleSignInResult = suspendCancellableCoroutine { cont ->
         val signInRequest = SignInWithApple.signInCancellable(context, nonce) { result ->
             result
                 .onSuccess { appleSignInResult ->
@@ -229,7 +238,6 @@ fun SignInWithApple.flow(context: Context, nonce: String): Flow<AppleSignInResul
         cont.invokeOnCancellation {
             signInRequest.cancel()
         }
-    }.let { appleSignInResult ->
-        emit(appleSignInResult)
     }
+    emit(appleSignInResult)
 }
