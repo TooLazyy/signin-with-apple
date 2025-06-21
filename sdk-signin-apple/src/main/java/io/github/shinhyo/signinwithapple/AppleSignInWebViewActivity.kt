@@ -155,6 +155,12 @@ internal class AppleSignInWebViewActivity : AppCompatActivity() {
                 val url = request.url.toString()
                 val redirectUri = viewModel.getRedirectUri() ?: SignInWithApple.getRedirectUri()
 
+                if (redirectUri.isNullOrEmpty()) {
+                    Log.e("AppleSignInWebViewActivity", "Redirect URI is null or empty. Unable to handle URL redirection.")
+                    // Optionally, show an error message or close the activity
+                    finish() // Gracefully close the activity
+                    return false
+                }
                 if (url.startsWith(redirectUri)) {
                     viewModel.handleRedirectUrl(url)
                     return true

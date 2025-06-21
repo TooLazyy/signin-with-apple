@@ -28,9 +28,10 @@ android {
 
 dependencies {
     // Reference library from JitPack (for public distribution)
-//    implementation("com.github.shinhyo:signin-with-apple:latest")
+    // Uncomment the following line when distributing the application publicly via JitPack.
+    //    implementation("com.github.shinhyo:signin-with-apple:latest")
     
-    // For local development - uncomment this line and comment out JitPack line if needed
+    // For local development - uncomment this line and comment out the JitPack line above if needed
      implementation(project(":sdk-signin-apple"))
 
     implementation(libs.androidx.core.ktx)
