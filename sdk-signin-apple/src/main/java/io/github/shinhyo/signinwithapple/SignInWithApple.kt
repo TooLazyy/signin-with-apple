@@ -38,17 +38,17 @@ import java.util.concurrent.CancellationException
  */
 object SignInWithApple {
 
-    private var clientId: String? = null
+    private var serviceId: String? = null
     private var redirectUri: String? = null
 
     /**
      * Initializes the Apple Sign-In library.
      *
-     * @param clientId The Apple service client ID
+     * @param serviceId The Apple Service ID configured in Apple Developer Console
      * @param redirectUri The redirect URI registered with Apple
      */
-    fun init(clientId: String, redirectUri: String) {
-        this.clientId = clientId
+    fun init(serviceId: String, redirectUri: String) {
+        this.serviceId = serviceId
         this.redirectUri = redirectUri
     }
 
@@ -71,8 +71,8 @@ object SignInWithApple {
         callback: (Result<AppleSignInResult>) -> Unit,
     ) {
         try {
-            val currentClientId =
-                clientId ?: throw IllegalStateException("SignInWithApple not initialized")
+            val currentServiceId =
+                serviceId ?: throw IllegalStateException("SignInWithApple not initialized")
             val currentRedirectUri =
                 redirectUri ?: throw IllegalStateException("SignInWithApple not initialized")
 
@@ -82,7 +82,7 @@ object SignInWithApple {
             // Start WebView Activity with configuration
             val intent = AppleSignInWebViewActivity.createIntent(
                 context = context,
-                clientId = currentClientId,
+                clientId = currentServiceId,
                 redirectUri = currentRedirectUri,
                 nonce = nonce,
                 resultReceiver = resultReceiver,

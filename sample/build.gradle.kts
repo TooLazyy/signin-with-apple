@@ -27,8 +27,11 @@ android {
 }
 
 dependencies {
-    implementation(project(":sdk-signin-apple"))
-
+    // Reference library from JitPack (for public distribution)
+//    implementation("com.github.shinhyo:signin-with-apple:latest")
+    
+    // For local development - uncomment this line and comment out JitPack line if needed
+     implementation(project(":sdk-signin-apple"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -41,9 +44,5 @@ dependencies {
     implementation(libs.androidx.compose.animation)
 
 
-//    implementation(libs.androidx.activity)
-//    implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
-//    androidTestImplementation(libs.androidx.junit)
-//    androidTestImplementation(libs.androidx.espresso.core)
 }

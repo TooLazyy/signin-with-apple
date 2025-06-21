@@ -2,6 +2,8 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        // Add JitPack repository for public library distribution
+        maven { url = uri("https://jitpack.io") }
     }
 }
 

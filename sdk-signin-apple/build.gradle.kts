@@ -15,6 +15,7 @@
  */
 plugins {
     id("shinhyo.android.library")
+    id("maven-publish")
 }
 
 android {
@@ -24,21 +25,87 @@ android {
         viewBinding = true
         buildConfig = true
     }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-//    implementation(libs.androidx.constraintlayout)
 
     // Activity Result API
     implementation(libs.androidx.activity.ktx)
     implementation(libs.kotlinx.serialization.json)
 
-
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
+}
+
+// Function to get version from git tag
+fun getVersionName(): String {
+    return try {
+        val tagOutput = providers.exec {
+            commandLine("git", "describe", "--tags", "--abbrev=0")
+        }.standardOutput.asText.get().trim()
+        
+        // Remove 'v' prefix if present (e.g., v1.0.0 -> 1.0.0)
+        if (tagOutput.startsWith("v")) {
+            tagOutput.substring(1)
+        } else {
+            tagOutput
+        }
+    } catch (e: Exception) {
+        // Fallback to property or throw error if not found
+        findProperty("VERSION_NAME") as String? 
+            ?: error("VERSION_NAME property not found and no git tag available. Please set VERSION_NAME in gradle.properties or create a git tag.")
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            register<MavenPublication>("release") {
+                from(components["release"])
+                
+                groupId = "io.github.shinhyo"
+                artifactId = "signin-with-apple"
+                version = getVersionName()
+                
+                pom {
+                    name.set("SignInWithApple Android SDK")
+                    description.set("A simple, secure, and modern Android library for integrating Apple ID sign-in")
+                    url.set("https://github.com/shinhyo/SignInWithApple")
+                    
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://opensource.org/licenses/MIT")
+                        }
+                    }
+                    
+                    developers {
+                        developer {
+                            id.set("shinhyo")
+                            name.set("shinhyo")
+                            email.set("wonshinhyo@gmail.com")
+                        }
+                    }
+                    
+                    scm {
+                        connection.set("scm:git:git://github.com/shinhyo/SignInWithApple.git")
+                        developerConnection.set("scm:git:ssh://git@github.com:shinhyo/SignInWithApple.git")
+                        url.set("https://github.com/shinhyo/SignInWithApple")
+                    }
+                }
+            }
+        }
+    }
 }

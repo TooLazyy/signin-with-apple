@@ -22,10 +22,12 @@ class SampleApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        // initialize SignInWithApple SDK
+        // Initialize SignInWithApple SDK
+        // Configure your Apple Service ID and redirect URI
+        // See README.md for detailed setup instructions
         SignInWithApple.init(
-            clientId = "",
-            redirectUri = "",
+            serviceId = "", // Your Apple Service ID from Apple Developer Console
+            redirectUri = "", // Your registered redirect URI
         )
     }
 }
