@@ -45,10 +45,10 @@ import io.github.shinhyo.signinwithapple.SignInWithApple
 import io.github.shinhyo.signinwithapple.model.AppleSignInResult
 import io.github.shinhyo.signinwithapple.sample.util.JsonUtil
 import io.github.shinhyo.signinwithapple.sample.util.JwtUtil
-import java.util.UUID
 import kotlinx.serialization.serializer
 import org.json.JSONObject
 import timber.log.Timber
+import java.util.UUID
 
 class ComposeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

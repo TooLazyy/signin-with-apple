@@ -16,11 +16,11 @@
 package io.github.shinhyo.signinwithapple
 
 import androidx.lifecycle.ViewModel
-import java.net.URLEncoder
-import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.net.URLEncoder
+import java.util.UUID
 
 /**
  * UI State for Apple Sign-In WebView
@@ -105,12 +105,12 @@ internal class AppleSignInWebViewViewModel() : ViewModel() {
     internal fun buildAuthUrl(config: AppleSignInConfig): String {
         val encodedRedirectUri = URLEncoder.encode(config.redirectUri, "UTF-8")
         return "https://appleid.apple.com/auth/authorize" +
-                "?client_id=${config.clientId}" +
-                "&redirect_uri=$encodedRedirectUri" +
-                "&response_type=code%20id_token" +
-                "&response_mode=fragment" +
-                "&nonce=${config.nonce}" +
-                "&state=${config.state}"
+            "?client_id=${config.clientId}" +
+            "&redirect_uri=$encodedRedirectUri" +
+            "&response_type=code%20id_token" +
+            "&response_mode=fragment" +
+            "&nonce=${config.nonce}" +
+            "&state=${config.state}"
     }
 
     /**

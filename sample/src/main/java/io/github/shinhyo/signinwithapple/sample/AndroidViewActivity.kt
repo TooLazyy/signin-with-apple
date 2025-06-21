@@ -23,9 +23,9 @@ import io.github.shinhyo.signinwithapple.model.AppleSignInResult
 import io.github.shinhyo.signinwithapple.sample.databinding.ActivityViewBinding
 import io.github.shinhyo.signinwithapple.sample.util.JsonUtil
 import io.github.shinhyo.signinwithapple.sample.util.JwtUtil
-import java.util.UUID
 import kotlinx.serialization.serializer
 import timber.log.Timber
+import java.util.UUID
 
 class AndroidViewActivity : AppCompatActivity() {
     private lateinit var binding: ActivityViewBinding
