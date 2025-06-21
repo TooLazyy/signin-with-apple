@@ -24,7 +24,21 @@ both traditional Android Views and Jetpack Compose.
 
 ### 1. Add the SDK to your project
 
-Clone this repository and include the `sdk-signin-apple` module in your project settings.
+Add JitPack repository to your root `build.gradle` or `settings.gradle`:
+
+```gradle
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+```
+
+Add the dependency to your app-level `build.gradle`:
+
+```gradle
+dependencies {
+    implementation 'com.github.shinhyo:SignInWithApple:latest'
+}
+```
 
 ### 2. Initialize the SDK
 
@@ -44,8 +58,8 @@ You must generate a secure, random nonce for each sign-in attempt and pass it to
 ```kotlin
 val nonce = UUID.randomUUID().toString() // Or use a cryptographically secure generator
 SignInWithApple.signIn(context, nonce) { result ->
-    result.onSuccess { credential ->
-        // credential.identityToken (JWT) - send to your backend for verification
+    result.onSuccess { appleSignInResult ->
+        // appleSignInResult.identityToken (JWT) - send to your backend for verification
     }.onFailure { error ->
         // Handle error
     }
@@ -82,8 +96,8 @@ The `sample` module demonstrates:
 ## License
 
 ```
-Apache License 2.0
-Copyright 2025 shinhyo
+MIT License
+Copyright (c) 2025 shinhyo
 ```
 
 See [LICENSE](LICENSE) for details.
