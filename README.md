@@ -135,18 +135,20 @@ SignInWithApple.init(
 
 ### 4. Start the Sign-In Flow
 
-You must generate a secure, random nonce for each sign-in attempt and pass it to the SDK:
+Generate a secure nonce and start the sign-in process:
 
 ```kotlin
-val nonce = UUID.randomUUID().toString() // Or use a cryptographically secure generator
+val nonce = UUID.randomUUID().toString()
 SignInWithApple.signIn(context, nonce) { result ->
    result.onSuccess { appleSignInResult ->
-      // appleSignInResult.identityToken (JWT) - send to your backend for verification
+      // Send appleSignInResult.identityToken (JWT) to your backend
    }.onFailure { error ->
       // Handle error
    }
 }
 ```
+
+**For Coroutines/Flow integration:** The SDK also provides `SignInWithApple.flow()` extension function for seamless integration with modern Android architecture.
 
 ### 5. Server-Side Verification ⚠️ **CRITICAL**
 
