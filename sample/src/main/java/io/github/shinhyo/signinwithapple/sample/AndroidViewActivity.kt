@@ -19,7 +19,7 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import androidx.appcompat.app.AppCompatActivity
 import io.github.shinhyo.signinwithapple.SignInWithApple
-import io.github.shinhyo.signinwithapple.model.AppleIdCredential
+import io.github.shinhyo.signinwithapple.model.AppleSignInResult
 import io.github.shinhyo.signinwithapple.sample.databinding.ActivityViewBinding
 import io.github.shinhyo.signinwithapple.sample.util.JsonUtil
 import io.github.shinhyo.signinwithapple.sample.util.JwtUtil
@@ -62,8 +62,8 @@ class AndroidViewActivity : AppCompatActivity() {
     /**
      * Displays the result on success, including nonce check and JWT payload.
      */
-    private fun showSuccessResult(credential: AppleIdCredential, nonce: String) {
-        val json = JsonUtil.toPrettyJson(credential, serializer<AppleIdCredential>())
+    private fun showSuccessResult(credential: AppleSignInResult, nonce: String) {
+        val json = JsonUtil.toPrettyJson(credential, serializer<AppleSignInResult>())
         val jwtPretty = JwtUtil.parseJwtPayload(credential.identityToken)
         val jwtPayload = try {
             org.json.JSONObject(jwtPretty)

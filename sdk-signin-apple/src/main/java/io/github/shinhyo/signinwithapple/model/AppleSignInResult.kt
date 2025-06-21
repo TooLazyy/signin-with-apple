@@ -22,6 +22,6 @@ import kotlinx.serialization.Serializable
  * Simplified version containing only idToken
  */
 @Serializable
-data class AppleIdCredential(
+data class AppleSignInResult(
     val identityToken: String?,
 )

@@ -28,18 +28,14 @@ android {
 
 dependencies {
     implementation(project(":sdk-signin-apple"))
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.activity.compose)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.kotlinx.serialization.json)
 
-
-    //         add("implementation", findLibrary("androidx.compose.material3"))
-    //        add("implementation", findLibrary("androidx.compose.material.iconsExtended"))
-    //        add("implementation", findLibrary("androidx.compose.animation"))
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.iconsExtended)
     implementation(libs.androidx.compose.animation)

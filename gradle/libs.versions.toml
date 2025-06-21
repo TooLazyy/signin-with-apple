@@ -1,9 +1,9 @@
 [versions]
 versionCode = "1"
-versionName = "1.0.0"
+versionName = "0.0.1"
 compileSdkVer = "35"
 targetSdkVer = "35"
-minSdkVer = "28"
+minSdkVer = "24"
 
 androidGradlePlugin = "8.10.1"
 
@@ -44,7 +44,7 @@ coil = "2.7.0"
 javaxInject = "1"
 timber = "5.0.1"
 okhttp = "4.12.0"
-retrofit = "2.11.0"
+retrofit = "3.0.0"
 retrofitKotlinxSerializationJson = "1.0.0"
 room = "2.7.2"
 turbine = "1.2.1"

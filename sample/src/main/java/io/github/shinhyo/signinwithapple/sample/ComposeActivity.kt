@@ -42,7 +42,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.shinhyo.signinwithapple.SignInWithApple
-import io.github.shinhyo.signinwithapple.model.AppleIdCredential
+import io.github.shinhyo.signinwithapple.model.AppleSignInResult
 import io.github.shinhyo.signinwithapple.sample.util.JsonUtil
 import io.github.shinhyo.signinwithapple.sample.util.JwtUtil
 import java.util.UUID
@@ -68,7 +68,7 @@ class ComposeActivity : ComponentActivity() {
                                 onSuccess = { credential, nonce ->
                                     val json = JsonUtil.toPrettyJson(
                                         credential,
-                                        serializer<AppleIdCredential>(),
+                                        serializer<AppleSignInResult>(),
                                     )
                                     val jwtPretty =
                                         JwtUtil.parseJwtPayload(credential.identityToken)
@@ -139,7 +139,7 @@ class ComposeActivity : ComponentActivity() {
     }
 
     private fun handleAppleSignIn(
-        onSuccess: (AppleIdCredential, String) -> Unit,
+        onSuccess: (AppleSignInResult, String) -> Unit,
         onFailure: (Throwable) -> Unit,
     ) {
         // nonce is a cryptographically random value used to prevent replay attacks and to verify the integrity of the authentication response.

@@ -20,10 +20,6 @@ plugins {
 android {
     namespace = "io.github.shinhyo.signinwithapple"
 
-    defaultConfig {
-        minSdk = 24
-    }
-
     buildFeatures {
         viewBinding = true
         buildConfig = true
@@ -42,7 +38,7 @@ dependencies {
 
 
     // Testing
-//    testImplementation(libs.test.junit)
-//    androidTestImplementation(libs.test.junit.ext)
-//    androidTestImplementation(libs.test.espresso.core)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
 }

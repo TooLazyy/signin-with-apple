@@ -24,23 +24,57 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.addCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 /**
  * Apple Sign-In WebView Activity
  *
  * Displays the Apple OAuth authentication page in a WebView and
  * detects the redirect URL to deliver the authentication result via ResultReceiver.
+ *
+ * Follows MVVM architecture pattern:
+ * - View (Activity): Handles UI interactions and lifecycle
+ * - ViewModel: Manages UI state and business logic
+ * - Model: Data handling is done through the ViewModel
  */
-class AppleSignInWebViewActivity : AppCompatActivity() {
+internal class AppleSignInWebViewActivity : AppCompatActivity() {
 
     companion object {
-        private const val EXTRA_AUTH_URL = "auth_url"
+        private const val EXTRA_CLIENT_ID = "client_id"
+        private const val EXTRA_REDIRECT_URI = "redirect_uri"
+        private const val EXTRA_NONCE = "nonce"
         private const val EXTRA_RESULT_RECEIVER = "extra_result_receiver"
 
+        // Legacy support
+        private const val EXTRA_AUTH_URL = "auth_url"
+
         /**
-         * Creates an intent to start this activity.
+         * Creates an intent to start this activity with Apple Sign-In configuration.
          */
+        fun createIntent(
+            context: Context,
+            clientId: String,
+            redirectUri: String,
+            nonce: String,
+            resultReceiver: ResultReceiver,
+        ): Intent {
+            return Intent(context, AppleSignInWebViewActivity::class.java).apply {
+                putExtra(EXTRA_CLIENT_ID, clientId)
+                putExtra(EXTRA_REDIRECT_URI, redirectUri)
+                putExtra(EXTRA_NONCE, nonce)
+                putExtra(EXTRA_RESULT_RECEIVER, resultReceiver)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        }
+
+        /**
+         * Creates an intent to start this activity (legacy method).
+         */
+        @Deprecated("Use the new createIntent with individual parameters")
         fun createIntent(
             context: Context,
             authUrl: String,
@@ -56,98 +90,163 @@ class AppleSignInWebViewActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private var resultReceiver: ResultReceiver? = null
+    private val viewModel: AppleSignInWebViewViewModel by viewModels()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_apple_sign_in_webview)
 
-        // Extract necessary data from Intent
-        val authUrl = intent.getStringExtra(EXTRA_AUTH_URL) ?: run {
-            sendResultAndFinish(RESULT_CANCELED, null)
-            return
-        }
+        initializeViews()
+        extractIntentData()
+        setupWebView()
+        setupObservers()
+        setupBackPressHandler()
+    }
 
-        @Suppress("DEPRECATION")
+    /**
+     * Initializes the views
+     */
+    private fun initializeViews() {
+        webView = findViewById(R.id.webview)
+    }
+
+    /**
+     * Extracts necessary data from Intent
+     */
+    private fun extractIntentData() {
         resultReceiver = if (android.os.Build.VERSION.SDK_INT >= 33) {
             intent.getParcelableExtra(EXTRA_RESULT_RECEIVER, ResultReceiver::class.java)
         } else {
             @Suppress("DEPRECATION")
             intent.getParcelableExtra(EXTRA_RESULT_RECEIVER)
         }
+
         if (resultReceiver == null) {
             finish()
             return
         }
 
-        // WebView settings
-        webView = findViewById(R.id.webview)
+        // Check if using new parameter structure
+        val clientId = intent.getStringExtra(EXTRA_CLIENT_ID)
+        val redirectUri = intent.getStringExtra(EXTRA_REDIRECT_URI)
+        val nonce = intent.getStringExtra(EXTRA_NONCE)
 
+        if (clientId != null && redirectUri != null && nonce != null) {
+            // New structure: initialize with configuration
+            viewModel.initializeAppleSignIn(clientId, redirectUri, nonce)
+        }
+    }
+
+    /**
+     * Sets up WebView configuration and client
+     */
+    private fun setupWebView() {
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
             setSupportMultipleWindows(true)
         }
 
-        // Load URL and handle redirection
         webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                viewModel.updateWebViewState(webView.canGoBack())
+            }
 
             override fun shouldOverrideUrlLoading(
                 view: WebView,
                 request: WebResourceRequest,
             ): Boolean {
                 val url = request.url.toString()
+                val redirectUri = viewModel.getRedirectUri() ?: SignInWithApple.getRedirectUri()
 
-                // Check if the URL is the redirect URI
-                if (url.startsWith(SignInWithApple.getRedirectUri())) {
-                    handleRedirectUrl(url)
+                if (url.startsWith(redirectUri)) {
+                    viewModel.handleRedirectUrl(url)
                     return true
                 }
                 return false
             }
         }
+    }
 
-        // Start loading the WebView
-        webView.loadUrl(authUrl)
+    /**
+     * Sets up observers for ViewModel state and events
+     */
+    private fun setupObservers() {
+        // Observe UI State
+        lifecycleScope.launch {
+            viewModel.uiState.collectLatest { uiState ->
+                handleUiState(uiState)
+            }
+        }
 
-        onBackPressedDispatcher.addCallback(this) {
-            if (webView.canGoBack()) {
-                webView.goBack()
-            } else {
-                sendResultAndFinish(RESULT_CANCELED, null)
+        // Observe Events
+        lifecycleScope.launch {
+            viewModel.events.collectLatest { event ->
+                event?.let { handleEvent(it) }
             }
         }
     }
 
     /**
-     * Handles the redirect URL.
+     * Handles UI state changes
      */
-    private fun handleRedirectUrl(url: String) {
-        try {
-            // Extract fragment from URL
-            val hashIndex = url.indexOf('#')
-            if (hashIndex != -1) {
-                val fragment = url.substring(hashIndex + 1)
-                val params = parseQueryParameters(fragment)
+    private fun handleUiState(uiState: UiState) {
+        // Load auth URL when available
+        uiState.authUrl?.let { url ->
+            if (!webView.url.equals(url)) {
+                webView.loadUrl(url)
+            }
+        }
+    }
 
-                // Create result Bundle
-                val resultBundle = Bundle().apply {
-                    params["state"]?.let { putString("state", it) }
-                    params["code"]?.let { putString("code", it) }
-                    params["id_token"]?.let { putString("id_token", it) }
-                    params["error"]?.let { putString("error", it) }
-                }
-
+    /**
+     * Handles events from ViewModel
+     */
+    private fun handleEvent(event: AppleSignInEvent) {
+        when (event) {
+            is AppleSignInEvent.Success -> {
+                val resultBundle = mapToBundle(event.resultData)
                 sendResultAndFinish(RESULT_OK, resultBundle)
-            } else {
+            }
+
+            is AppleSignInEvent.Error -> {
+                val errorBundle = event.errorData?.let { mapToBundle(it) } ?: Bundle().apply {
+                    putString("error", "redirect_processing_error")
+                    putString("error_description", event.message)
+                }
+                sendResultAndFinish(RESULT_CANCELED, errorBundle)
+            }
+
+            is AppleSignInEvent.Cancelled -> {
                 sendResultAndFinish(RESULT_CANCELED, null)
             }
-        } catch (e: Exception) {
-            val errorBundle = Bundle().apply {
-                putString("error", "redirect_processing_error")
-                putString("error_description", e.message)
+        }
+        viewModel.clearEvent()
+    }
+
+    /**
+     * Converts Map to Bundle for result delivery
+     */
+    private fun mapToBundle(data: Map<String, String>): Bundle {
+        return Bundle().apply {
+            data.forEach { (key, value) ->
+                putString(key, value)
             }
-            sendResultAndFinish(RESULT_CANCELED, errorBundle)
+        }
+    }
+
+    /**
+     * Sets up back press handling
+     */
+    private fun setupBackPressHandler() {
+        onBackPressedDispatcher.addCallback(this) {
+            if (webView.canGoBack()) {
+                webView.goBack()
+            } else {
+                viewModel.onUserCancelled()
+            }
         }
     }
 
@@ -157,23 +256,5 @@ class AppleSignInWebViewActivity : AppCompatActivity() {
     private fun sendResultAndFinish(resultCode: Int, resultData: Bundle?) {
         resultReceiver?.send(resultCode, resultData)
         finish()
-    }
-
-    /**
-     * Parses the query string and returns a parameter map.
-     */
-    private fun parseQueryParameters(queryString: String): Map<String, String> {
-        val params = mutableMapOf<String, String>()
-
-        queryString.split("&").forEach { param ->
-            val keyValue = param.split("=", limit = 2)
-            if (keyValue.size == 2) {
-                val key = keyValue[0]
-                val value = keyValue[1]
-                params[key] = value
-            }
-        }
-
-        return params
     }
 }
