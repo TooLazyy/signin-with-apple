@@ -27,6 +27,7 @@ import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import io.github.shinhyo.signinwithapple.databinding.ActivityAppleSignInWebviewBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -88,27 +89,20 @@ internal class AppleSignInWebViewActivity : AppCompatActivity() {
         }
     }
 
-    private lateinit var webView: WebView
+    private lateinit var binding: ActivityAppleSignInWebviewBinding
     private var resultReceiver: ResultReceiver? = null
     private val viewModel: AppleSignInWebViewViewModel by viewModels()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_apple_sign_in_webview)
+        binding = ActivityAppleSignInWebviewBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        initializeViews()
         extractIntentData()
         setupWebView()
         setupObservers()
         setupBackPressHandler()
-    }
-
-    /**
-     * Initializes the views
-     */
-    private fun initializeViews() {
-        webView = findViewById(R.id.webview)
     }
 
     /**
@@ -142,16 +136,16 @@ internal class AppleSignInWebViewActivity : AppCompatActivity() {
      * Sets up WebView configuration and client
      */
     private fun setupWebView() {
-        webView.settings.apply {
+        binding.webview.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
             setSupportMultipleWindows(true)
         }
 
-        webView.webViewClient = object : WebViewClient() {
+        binding.webview.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                viewModel.updateWebViewState(webView.canGoBack())
+                viewModel.updateWebViewState(binding.webview.canGoBack())
             }
 
             override fun shouldOverrideUrlLoading(
@@ -195,8 +189,8 @@ internal class AppleSignInWebViewActivity : AppCompatActivity() {
     private fun handleUiState(uiState: UiState) {
         // Load auth URL when available
         uiState.authUrl?.let { url ->
-            if (!webView.url.equals(url)) {
-                webView.loadUrl(url)
+            if (!binding.webview.url.equals(url)) {
+                binding.webview.loadUrl(url)
             }
         }
     }
@@ -242,8 +236,8 @@ internal class AppleSignInWebViewActivity : AppCompatActivity() {
      */
     private fun setupBackPressHandler() {
         onBackPressedDispatcher.addCallback(this) {
-            if (webView.canGoBack()) {
-                webView.goBack()
+            if (binding.webview.canGoBack()) {
+                binding.webview.goBack()
             } else {
                 viewModel.onUserCancelled()
             }

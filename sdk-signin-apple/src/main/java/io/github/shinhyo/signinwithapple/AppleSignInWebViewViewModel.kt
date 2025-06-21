@@ -54,7 +54,6 @@ internal data class AppleSignInConfig(
     val state: String = UUID.randomUUID().toString(),
 )
 
-
 /**
  * ViewModel for Apple Sign-In WebView Activity
  *
@@ -102,6 +101,7 @@ internal class AppleSignInWebViewViewModel() : ViewModel() {
 
     /**
      * Builds Apple OAuth authentication URL
+     * https://developer.apple.com/documentation/signinwithapplerestapi/generate_and_validate_tokens
      */
     internal fun buildAuthUrl(config: AppleSignInConfig): String {
         val encodedRedirectUri = URLEncoder.encode(config.redirectUri, "UTF-8")
@@ -252,4 +252,3 @@ internal class AppleSignInWebViewViewModel() : ViewModel() {
         return params
     }
 }
-
