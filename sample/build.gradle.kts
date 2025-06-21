@@ -19,17 +19,31 @@ plugins {
 
 android {
     namespace = "io.github.shinhyo.signinwithapple.sample"
+
+    buildFeatures {
+        viewBinding = true
+    }
+
 }
 
 dependencies {
-    implementation(libs.androidx.activity.compose)
+    // Reference library from JitPack (for public distribution)
+    // Uncomment the following line when distributing the application publicly via JitPack.
+    // implementation("com.github.shinhyo:signin-with-apple:+")
+
+    // For local development - uncomment this line and comment out the JitPack line above if needed
+    implementation(project(":sdk-signin-apple"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-//    implementation(libs.androidx.activity)
-//    implementation(libs.androidx.constraintlayout)
+    implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.iconsExtended)
+    implementation(libs.androidx.compose.animation)
+
+
     testImplementation(libs.junit)
-//    androidTestImplementation(libs.androidx.junit)
-//    androidTestImplementation(libs.androidx.espresso.core)
 }

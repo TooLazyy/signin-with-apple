@@ -4,6 +4,7 @@ import io.github.shinhyo.buildlogic.findLibrary
 
 with(pluginManager) {
     apply("com.android.library")
+    apply("org.jetbrains.kotlin.plugin.serialization")
 }
 
 dependencies {
