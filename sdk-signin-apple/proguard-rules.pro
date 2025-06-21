@@ -45,6 +45,16 @@
     *;
 }
 
+# Keep ViewModel for tests
+-keep class io.github.shinhyo.signinwithapple.AppleSignInWebViewViewModel {
+    *;
+}
+
+# Keep all internal classes for testing
+-keep class io.github.shinhyo.signinwithapple.** {
+    *;
+}
+
 # Keep ResultReceiver for callbacks
 -keep class * extends android.os.ResultReceiver {
     public *;
