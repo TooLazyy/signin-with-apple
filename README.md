@@ -4,15 +4,11 @@
 [![API](https://img.shields.io/badge/API-24%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=24)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Android library** for Apple Sign-In integration. Since Apple doesn't provide an official Kotlin/Android SDK for "Sign in with Apple", this library fills that gap. 
+🤖 **Android library for Apple Sign-In integration.** Since Apple doesn't provide an official Android SDK, this library fills that gap by providing Apple Identity Tokens (JWT) for your backend authentication system.
 
-A simple, secure, and modern Android library for integrating Apple ID sign-in ("Sign in with Apple")
-into your app. This library focuses on **retrieving Apple's Identity Token (JWT)** that must be verified
-on your backend server for secure authentication.
+🏢 **Perfect for custom authentication systems** - Works with your own OAuth server, Auth0, Okta, AWS Cognito, or any backend-centric authentication without requiring Firebase, Supabase, or other BaaS.
 
-**🎨 UI Flexibility**: This library only handles the authentication flow - you can integrate it with any UI
-framework or design system (Android Views, Jetpack Compose, custom layouts, or even dialogs). The sign-in process
-uses a WebView overlay, so your app's UI remains completely customizable and can be presented in any form factor.
+🎨 **UI Flexibility** - WebView-based flow that works with any UI framework (Views, Compose, dialogs). Your app's design remains completely customizable.
 
 ## Features
 
@@ -25,6 +21,43 @@ uses a WebView overlay, so your app's UI remains completely customizable and can
 - Sample app with both View and Compose UI
 - JWT payload parsing and nonce validation example
 - Kotlin-first with full Java compatibility
+
+## Use Cases
+
+Perfect for apps using:
+- **Custom authentication systems** - Self-hosted OAuth, Auth0, Okta, AWS Cognito
+- **Backend-centric authentication** - Server-side JWT validation and user management
+- **No BaaS (Backend as a Service)** - When not using Firebase, Supabase, PocketBase, etc.
+- **Enterprise applications** - B2B apps with custom user management and SSO
+
+## Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant App as Android App
+    participant SDK as SignInWithApple SDK
+    participant WV as WebView
+    participant Apple as Apple ID Server
+    participant Backend as Your Backend
+
+    App->>SDK: SignInWithApple.init(serviceId, redirectUri)
+    App->>SDK: SignInWithApple.signIn(context, nonce)
+    
+    SDK->>SDK: Generate state & nonce
+    SDK->>WV: Launch WebView with Apple OAuth URL
+    WV->>Apple: User authentication
+    Apple->>WV: Authorization code + ID token (JWT)
+    WV->>SDK: Redirect with tokens
+    
+    SDK->>SDK: Validate state parameter (CSRF protection)
+    SDK->>App: Return AppleIdCredential(identityToken)
+    
+    App->>Backend: Send Identity Token (JWT) for verification
+    Backend->>Apple: Verify JWT signature & claims
+    Backend->>Backend: Validate nonce matches
+    Backend->>Apple: Exchange for Access/Refresh tokens
+    Backend->>App: Authentication success
+```
 
 ## Requirements
 
@@ -46,7 +79,7 @@ Add JitPack repository to your project (`settings.gradle.kts` or `build.gradle.k
 
 ```kotlin
 repositories {
-    maven { url = uri("https://jitpack.io") }
+   maven { url = uri("https://jitpack.io") }
 }
 ```
 
@@ -54,11 +87,11 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.shinhyo:signin-with-apple:latest")
+   implementation("com.github.shinhyo:signin-with-apple:1.0.0")
 }
 ```
 
-> **Note:** Replace `latest` with a specific version (e.g., `1.0.0`) for production use.
+> **Note:** Replace `1.0.0` with the latest version. You can also use `latest` for development, but specific versions are recommended for production.
 
 ### 2. Configure Apple Developer Console
 
@@ -92,8 +125,8 @@ In your Application or Activity:
 
 ```kotlin
 SignInWithApple.init(
-    serviceId = "com.yourcompany.yourapp.service", // Your Apple Service ID from step 2
-    redirectUri = "https://yourapp.com/auth/apple/callback" // Your registered redirect URI
+   serviceId = "com.yourcompany.yourapp.service", // Your Apple Service ID from step 2
+   redirectUri = "https://yourapp.com/auth/apple/callback" // Your registered redirect URI
 )
 ```
 
@@ -106,72 +139,30 @@ You must generate a secure, random nonce for each sign-in attempt and pass it to
 ```kotlin
 val nonce = UUID.randomUUID().toString() // Or use a cryptographically secure generator
 SignInWithApple.signIn(context, nonce) { result ->
-    result.onSuccess { appleSignInResult ->
-        // appleSignInResult.identityToken (JWT) - send to your backend for verification
-    }.onFailure { error ->
-        // Handle error
-    }
+   result.onSuccess { appleSignInResult ->
+      // appleSignInResult.identityToken (JWT) - send to your backend for verification
+   }.onFailure { error ->
+      // Handle error
+   }
 }
 ```
 
 ### 5. Server-Side Verification ⚠️ **CRITICAL**
 
 **🚨 Security Requirements:**
-
 - **Always verify the `identityToken` (JWT) on your backend server** - Never trust client-side tokens
-- **Nonce verification is MANDATORY** - Always check that the `nonce` in the JWT payload matches the one you generated and sent
-- **Validate JWT signature and claims** according to Apple's documentation
-- **Never skip server-side validation** - This is essential for preventing security vulnerabilities
+- **Nonce verification is MANDATORY** - Check that the `nonce` in JWT payload matches the one you sent
+- **Validate JWT signature and claims** according to [Apple's documentation](https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_rest_api/verifying_a_user)
 
 **🛡️ Built-in Security Features:**
+- State parameter validation (CSRF protection)
+- Secure nonce handling and validation
+- Strict redirect URI validation
 
-- **State Parameter Validation**: The library automatically generates and validates state parameters to prevent CSRF attacks
-- **Secure Nonce Handling**: Cryptographically secure nonce generation and validation
-- **URL Validation**: Strict redirect URI validation to prevent redirect attacks
+**Getting Access/Refresh Tokens:**
+After JWT verification, exchange for tokens using Apple's `/auth/token` endpoint with your Service ID and client secret JWT.
 
-**Why server-side verification is required:**
-
-- Client-side validation can be bypassed by attackers
-- The Identity Token contains sensitive user information that must be verified
-- Nonce validation prevents replay attacks and ensures token freshness
-
-#### Getting Access Token and Refresh Token (AT/RT)
-
-After successfully verifying the Identity Token on your server, you need to obtain Access Token and Refresh Token from Apple:
-
-1. **Exchange Identity Token for Access/Refresh Tokens:**
-   ```http
-   POST https://appleid.apple.com/auth/token
-   Content-Type: application/x-www-form-urlencoded
-
-   client_id=com.yourcompany.yourapp.service
-   client_secret=YOUR_CLIENT_SECRET_JWT
-   code=AUTHORIZATION_CODE_FROM_IDENTITY_TOKEN
-   grant_type=authorization_code
-   ```
-
-2. **Generate Client Secret (JWT):**
-   - Create a JWT signed with your Apple private key
-   - Include required claims: `iss`, `iat`, `exp`, `aud`, `sub`
-   - Use ES256 algorithm for signing
-
-3. **Store Tokens Securely:**
-   - **Access Token**: Short-lived token for API calls
-   - **Refresh Token**: Long-lived token to refresh access tokens
-   - Store both tokens securely on your backend server
-
-4. **Token Refresh:**
-   ```http
-   POST https://appleid.apple.com/auth/token
-   Content-Type: application/x-www-form-urlencoded
-
-   client_id=com.yourcompany.yourapp.service
-   client_secret=YOUR_CLIENT_SECRET_JWT
-   refresh_token=YOUR_REFRESH_TOKEN
-   grant_type=refresh_token
-   ```
-
-> **Important:** The authorization code in the Identity Token can only be used once to obtain the initial AT/RT pair. After that, use the refresh token to get new access tokens.
+> **Important:** Server-side verification prevents security vulnerabilities and replay attacks. Never skip this step.
 
 ---
 

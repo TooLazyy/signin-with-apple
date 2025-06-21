@@ -29,10 +29,10 @@ android {
 dependencies {
     // Reference library from JitPack (for public distribution)
     // Uncomment the following line when distributing the application publicly via JitPack.
-    // implementation("com.github.shinhyo:signin-with-apple:+")
+     implementation(libs.signin.with.apple)
 
     // For local development - uncomment this line and comment out the JitPack line above if needed
-    implementation(project(":sdk-signin-apple"))
+//    implementation(project(":sdk-signin-apple"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
