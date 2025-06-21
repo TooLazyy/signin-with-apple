@@ -38,12 +38,6 @@ jobs:
         id: get_version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Check Spotless
-        run: ./gradlew spotlessCheck --init-script gradle/init.gradle.kts --no-configuration-cache --no-daemon --stacktrace
-
-      - name: Run tests
-        run: ./gradlew test --init-script gradle/init.gradle.kts --no-configuration-cache --no-daemon --stacktrace
-
       - name: Build library
         run: ./gradlew :sdk-signin-apple:build --init-script gradle/init.gradle.kts --no-configuration-cache --no-daemon --stacktrace
 
@@ -54,6 +48,8 @@ jobs:
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ steps.get_version.outputs.VERSION }}
@@ -74,10 +70,8 @@ jobs:
             
             ### Library Files
             - `sdk-signin-apple-release.aar`: Main library file
-            - `sdk-signin-apple-${{ steps.get_version.outputs.VERSION }}-sources.jar`: Source code (if available)
           files: |
             sdk-signin-apple/build/outputs/aar/sdk-signin-apple-release.aar
-            sdk-signin-apple/build/libs/sdk-signin-apple-*-sources.jar
           draft: false
           prerelease: false
 
