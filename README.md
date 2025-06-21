@@ -88,11 +88,11 @@ Add the dependency to your app-level `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-   implementation("com.github.shinhyo:signin-with-apple:1.0.0")
+   implementation("com.github.shinhyo:signin-with-apple:1.0.1")
 }
 ```
 
-> **Note:** Replace `1.0.0` with the latest version. You can also use `latest` for development, but specific versions are recommended for production.
+> **Note:** Replace `1.0.1` with the latest version. You can also use `latest` for development, but specific versions are recommended for production.
 
 ### 2. Configure Apple Developer Console
 
