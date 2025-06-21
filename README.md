@@ -8,14 +8,15 @@
 
 🏢 **Perfect for custom authentication systems** - Works with your own OAuth server, Auth0, Okta, AWS Cognito, or any backend-centric authentication without requiring Firebase, Supabase, or other BaaS.
 
-🎨 **UI Flexibility** - WebView-based flow that works with any UI framework (Views, Compose, dialogs). Your app's design remains completely customizable.
+🎨 **UI Flexibility** - WebView-based flow that works with any UI framework (Views, Compose).  
+Your app's design remains completely customizable.  
 
 ## Features
 
 - Easy Apple ID sign-in integration for Android
 - **Identity Token (JWT) retrieval** - Get Apple's signed JWT for server verification
 - Secure nonce handling for replay attack prevention
-- **Flexible UI integration** - Works with any UI framework (Views, Compose, custom layouts, dialogs)
+- **Flexible UI integration** - Works with any UI framework (Views, Compose, custom layouts)
 - WebView-based OAuth flow (no custom tabs required)
 - Result callback with Apple ID token (JWT)
 - Sample app with both View and Compose UI

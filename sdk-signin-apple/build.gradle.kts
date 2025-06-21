@@ -26,6 +26,23 @@ android {
         buildConfig = true
     }
 
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            consumerProguardFiles("proguard-rules.pro")
+        }
+    }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
     publishing {
         singleVariant("release") {
             withSourcesJar()
