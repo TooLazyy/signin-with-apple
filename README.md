@@ -125,7 +125,7 @@ In your Application or Activity:
 
 ```kotlin
 SignInWithApple.init(
-   serviceId = "com.yourcompany.yourapp.service", // Your Apple Service ID from step 2
+   serviceId = "com.yourcompany.yourapp.service", // Your Apple Service ID from step 3
    redirectUri = "https://yourapp.com/auth/apple/callback" // Your registered redirect URI
 )
 ```
@@ -152,7 +152,7 @@ SignInWithApple.signIn(context, nonce) { result ->
 **🚨 Security Requirements:**
 - **Always verify the `identityToken` (JWT) on your backend server** - Never trust client-side tokens
 - **Nonce verification is MANDATORY** - Check that the `nonce` in JWT payload matches the one you sent
-- **Validate JWT signature and claims** according to [Apple's documentation](https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_rest_api/verifying_a_user)
+- **Validate JWT signature and claims** according to [Apple's documentation](https://developer.apple.com/documentation/sign_in_with_apple/)
 
 **🛡️ Built-in Security Features:**
 - State parameter validation (CSRF protection)
