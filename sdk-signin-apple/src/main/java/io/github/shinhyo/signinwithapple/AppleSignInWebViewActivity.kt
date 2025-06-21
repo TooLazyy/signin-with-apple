@@ -189,7 +189,7 @@ internal class AppleSignInWebViewActivity : AppCompatActivity() {
     private fun handleUiState(uiState: UiState) {
         // Load auth URL when available
         uiState.authUrl?.let { url ->
-            if (!binding.webview.url.equals(url)) {
+            if (binding.webview.url == null || binding.webview.url != url) {
                 binding.webview.loadUrl(url)
             }
         }
