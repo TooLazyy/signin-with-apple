@@ -1,10 +1,10 @@
-# SignInWithApple Android SDK
+# 🍎 SignInWithApple Android SDK
 
 [![](https://jitpack.io/v/shinhyo/signin-with-apple.svg)](https://jitpack.io/#shinhyo/signin-with-apple)
 [![API](https://img.shields.io/badge/API-24%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=24)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**🍎 Android library** for Apple Sign-In integration. Since Apple doesn't provide an official Kotlin/Android SDK for "Sign in with Apple", this library fills that gap. 
+**Android library** for Apple Sign-In integration. Since Apple doesn't provide an official Kotlin/Android SDK for "Sign in with Apple", this library fills that gap. 
 
 A simple, secure, and modern Android library for integrating Apple ID sign-in ("Sign in with Apple")
 into your app. This library focuses on **retrieving Apple's Identity Token (JWT)** that must be verified
