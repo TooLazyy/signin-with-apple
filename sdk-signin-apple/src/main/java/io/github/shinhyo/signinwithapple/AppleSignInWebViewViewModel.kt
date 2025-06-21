@@ -21,7 +21,6 @@ import java.util.UUID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import timber.log.Timber
 
 /**
  * UI State for Apple Sign-In WebView
@@ -169,9 +168,6 @@ internal class AppleSignInWebViewViewModel() : ViewModel() {
      */
     internal fun processAuthenticationResult(params: Map<String, String>) {
         // Validate state to prevent CSRF attacks
-        params.forEach { (key, value) ->
-            Timber.i("param: $key = $value")
-        }
         val receivedState = params["state"]
         val expectedState = config?.state
 

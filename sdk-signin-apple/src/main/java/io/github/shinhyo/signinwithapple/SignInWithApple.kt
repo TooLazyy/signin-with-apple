@@ -23,7 +23,6 @@ import android.os.Looper
 import android.os.ResultReceiver
 import io.github.shinhyo.signinwithapple.model.AppleSignInResult
 import java.util.concurrent.CancellationException
-import timber.log.Timber
 
 /**
  * Apple Sign-In Service
@@ -37,7 +36,6 @@ import timber.log.Timber
  * - Works independently of the Activity lifecycle.
  */
 object SignInWithApple {
-    private const val TAG = "AppleSignIn"
 
     private var clientId: String? = null
     private var redirectUri: String? = null
@@ -90,7 +88,6 @@ object SignInWithApple {
             )
             context.startActivity(intent)
         } catch (e: Exception) {
-            Timber.e(e, "🍎 [$TAG] Failed to start sign-in")
             callback(Result.failure(e))
         }
     }
