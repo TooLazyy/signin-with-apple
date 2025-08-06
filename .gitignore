@@ -1,0 +1,41 @@
+*.iml
+# IntelliJ IDEA project files
+.idea/
+# Files in .idea that do not need to be shared
+.idea/caches/
+.idea/libraries/
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/misc.xml
+.idea/deploymentTargetSelector.xml
+.idea/appInsightsSettings.xml
+.idea/AndroidProjectSystem.xml
+.idea/compiler.xml
+.idea/gradle.xml
+.idea/kotlinc.xml
+.idea/migrations.xml
+.idea/runConfigurations.xml
+.idea/dictionaries/
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/shelf/
+
+# macOS
+.DS_Store
+
+# Build outputs
+/build/
+/app/build/
+/apple-signin-sdk/build/
+/build-logic/convention/build/
+/captures/
+.externalNativeBuild/
+.cxx/
+/htmlReport/*
+
+# Local configuration
+local.properties
+/.kotlin
+/**/.gradle
+/**/build/
