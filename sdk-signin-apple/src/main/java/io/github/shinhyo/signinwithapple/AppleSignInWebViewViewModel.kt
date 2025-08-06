@@ -23,6 +23,7 @@
  */
 package io.github.shinhyo.signinwithapple
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -85,6 +86,7 @@ internal class AppleSignInWebViewViewModel() : ViewModel() {
         redirectUri: String,
         nonce: String,
     ) {
+        Log.d("MIINE", "init vm")
         val newConfig = AppleSignInConfig(
             clientId = clientId,
             redirectUri = redirectUri,
@@ -112,19 +114,23 @@ internal class AppleSignInWebViewViewModel() : ViewModel() {
      */
     internal fun buildAuthUrl(config: AppleSignInConfig): String {
         val encodedRedirectUri = URLEncoder.encode(config.redirectUri, "UTF-8")
-        return "https://appleid.apple.com/auth/authorize" +
-            "?client_id=${config.clientId}" +
-            "&redirect_uri=$encodedRedirectUri" +
-            "&response_type=code%20id_token" +
-            "&response_mode=fragment" +
-            "&nonce=${config.nonce}" +
-            "&state=${config.state}"
+        val fullUrl = "https://appleid.apple.com/auth/authorize" +
+                "?client_id=${config.clientId}" +
+                "&redirect_uri=$encodedRedirectUri" +
+                "&response_type=code%20id_token" +
+                "&response_mode=form_post" +
+                "&scope=email%20name" +
+                "&nonce=${config.nonce}" +
+                "&state=${config.state}"
+        Log.d("MIINE", "buildAuthUrl. fullUrl=$fullUrl")
+        return fullUrl
     }
 
     /**
      * Handles the redirect URL from Apple's authentication flow
      */
     fun handleRedirectUrl(url: String) {
+        Log.d("MIINE", "handleRedirectUrl. url=$url")
         try {
             val fragment = extractUrlFragment(url)
             if (fragment != null) {
@@ -134,6 +140,7 @@ internal class AppleSignInWebViewViewModel() : ViewModel() {
                 emitError("Invalid redirect URL format")
             }
         } catch (e: Exception) {
+            Log.d("MIINE", "handleRedirectUrl. error=${e.localizedMessage}")
             emitError("Failed to process redirect: ${e.message}")
         }
     }
@@ -163,6 +170,7 @@ internal class AppleSignInWebViewViewModel() : ViewModel() {
      * Extracts URL fragment for testing
      */
     internal fun extractUrlFragment(url: String): String? {
+        Log.d("MIINE", "extractUrlFragment. url=$url")
         val hashIndex = url.indexOf('#')
         return if (hashIndex != -1) {
             url.substring(hashIndex + 1)

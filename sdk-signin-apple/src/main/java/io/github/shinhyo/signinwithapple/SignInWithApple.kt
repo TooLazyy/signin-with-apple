@@ -203,13 +203,15 @@ object SignInWithApple {
         try {
             val bundle = resultData ?: throw Exception("No result data")
 
+            val code = bundle.getString("code")
             val idToken = bundle.getString("id_token")
             val error = bundle.getString("error")
+            val tokenToUse = code ?: idToken
 
             // Handle result based on presence of idToken or error
             when {
-                !idToken.isNullOrEmpty() -> {
-                    val credential = AppleSignInResult(identityToken = idToken)
+                !tokenToUse.isNullOrEmpty() -> {
+                    val credential = AppleSignInResult(identityToken = tokenToUse)
                     callback(Result.success(credential))
                 }
 

@@ -34,8 +34,8 @@ class SampleApp : Application() {
         // Configure your Apple Service ID and redirect URI
         // See README.md for detailed setup instructions
         SignInWithApple.init(
-            serviceId = "", // Your Apple Service ID from Apple Developer Console
-            redirectUri = "", // Your registered redirect URI
+            serviceId = "com.byairapp.dev.non-ios-siwa", // Your Apple Service ID from Apple Developer Console
+            redirectUri = "https://byairapp.com/auth/siwa", // Your registered redirect URI
         )
     }
 }

@@ -27,8 +27,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.ResultReceiver
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.addCallback
@@ -100,6 +103,7 @@ internal class AppleSignInWebViewActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAppleSignInWebviewBinding
     private var resultReceiver: ResultReceiver? = null
     private val viewModel: AppleSignInWebViewViewModel by viewModels()
+    private val jsInterface = FormInterceptorInterface()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -138,6 +142,7 @@ internal class AppleSignInWebViewActivity : AppCompatActivity() {
             // New structure: initialize with configuration
             viewModel.initializeAppleSignIn(clientId, redirectUri, nonce)
         }
+        jsInterface.expectedState = viewModel.getState() ?: ""
     }
 
     /**
@@ -149,11 +154,34 @@ internal class AppleSignInWebViewActivity : AppCompatActivity() {
             domStorageEnabled = true
             setSupportMultipleWindows(true)
         }
+        binding.webview.addJavascriptInterface(
+            jsInterface,
+            FormInterceptorInterface.NAME
+        )
 
         binding.webview.webViewClient = object : WebViewClient() {
+
+            private val mainHandler= Handler(Looper.getMainLooper())
+
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 viewModel.updateWebViewState(binding.webview.canGoBack())
+            }
+
+            override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest): WebResourceResponse? {
+                val url = request.url.toString()
+                val redirectUri = viewModel.getRedirectUri() ?: SignInWithApple.getRedirectUri()
+                if(request.method == "POST" && url.contains(redirectUri)){
+                    try {
+                        Thread.currentThread().interrupt()
+                    } catch (ex: Exception){}
+
+                    mainHandler.post {
+                        view?.stopLoading()
+                        view?.loadUrl("javascript:${FormInterceptorInterface.JS_TO_INJECT}")
+                    }
+                }
+                return super.shouldInterceptRequest(view, request)
             }
 
             override fun shouldOverrideUrlLoading(
@@ -180,6 +208,19 @@ internal class AppleSignInWebViewActivity : AppCompatActivity() {
      * Sets up observers for ViewModel state and events
      */
     private fun setupObservers() {
+        jsInterface.onSuccess = {
+            handleEvent(
+                AppleSignInEvent.Success(
+                    mapOf("id_token" to it)
+                )
+            )
+        }
+        jsInterface.onError = {
+            handleEvent(AppleSignInEvent.Error(it, null))
+        }
+        jsInterface.onCancel = {
+            handleEvent(AppleSignInEvent.Cancelled)
+        }
         // Observe UI State
         lifecycleScope.launch {
             viewModel.uiState.collectLatest { uiState ->
